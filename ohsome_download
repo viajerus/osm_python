@@ -1,0 +1,44 @@
+import json
+from json import dumps
+import urllib.parse
+import urllib.request
+import requests
+
+#set your path
+dirname = "{your directory}"
+filename = '{e.g. riverbank}'
+suffix = '.geojson'
+
+path_out = (os.path.join(dirname, filename + suffix))
+
+#download geojson (bpolys) for Baden-Wuerttemberg
+data = urllib.request.urlopen(
+    'https://raw.githubusercontent.com/viajerus/random/main/baw_final.geojson'
+).read()
+
+response = requests.get(
+    'https://raw.githubusercontent.com/viajerus/random/main/baw_final.geojson'
+)
+body = response.json()
+bpolys = json.dumps(body)
+
+#fetch data from the ohsome api
+URL = "https://api.ohsome.org/v1/elements/geometry"
+data = {
+    "bpolys": bpolys,
+    "time": "2021-01-12",
+    "filter": "waterway=riverbank" ,
+    "showMetadata": "yes",
+    "properties": "metadata,tags",
+    "clipGeometry": "false",
+}
+response = requests.post(URL, data=data)
+print(response)
+
+
+#save data as a .geojson file
+with open("path_out", "wb") as outf:
+    outf.write(response.content)
+    
+   
+  
